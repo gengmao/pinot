@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pinot-quickstart
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned
+  namespace: pinot-quickstart
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pinot-controller-cert
+  namespace: pinot-quickstart
+spec:
+  dnsNames:
+    - controller.pinot.local
+  secretName: pinot-controller-tls
+  issuerRef:
+    name: selfsigned
+  duration: 240h
+  renewBefore: 120h
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pinot-broker-cert
+  namespace: pinot-quickstart
+spec:
+  dnsNames:
+    - broker.pinot.local
+  secretName: pinot-broker-tls
+  issuerRef:
+    name: selfsigned
+  duration: 240h
+  renewBefore: 120h
