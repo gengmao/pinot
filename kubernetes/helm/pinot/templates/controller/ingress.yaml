@@ -30,4 +30,36 @@ spec:
 {{- end }}
 
 {{- if .Values.controller.ingress.v1.enabled -}}
+{{- $ingressPath := .Values.controller.ingress.path -}}
+{{- $serviceName := include "pinot.controller.fullname" . -}}
+{{- $servicePort := .Values.controller.service.port -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $serviceName }}
+{{- if .Values.broker.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.broker.ingress.annotations | indent 4 }}
 {{- end }}
+  labels:
+{{- include "pinot.controllerLabels" . | nindent 4 }}
+spec:
+{{- if .Values.controller.ingress.tls }}
+  tls:
+{{ toYaml .Values.controller.ingress.tls | indent 4 }}
+{{- end }}
+  rules:
+    {{- range .Values.controller.ingress.hosts }}
+  - host: {{ . }}
+    http:
+      paths:
+        - pathType: Prefix
+          path: {{ $ingressPath }}
+          backend:
+            service:
+              name: {{ $serviceName }}
+              port:
+                number: {{ $servicePort }}
+    {{- end }}
+{{- end }}
+
