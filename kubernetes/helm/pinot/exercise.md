@@ -248,3 +248,5 @@ Then open browser to the address
 ```
 $ open https://controller.pinot.local:8443
 ```
+Chrome probably don't allow you to open the page, but at least we can check the certificate which is the self-signed one
+<img width="1087" alt="Screen Shot 2022-03-11 at 3 36 00 PM" src="https://user-images.githubusercontent.com/42412/157990552-42444689-6a7b-448b-aac7-55c5e057b208.png">
