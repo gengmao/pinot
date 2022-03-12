@@ -248,3 +248,36 @@ Then open browser to the address
 ```
 $ open https://controller.pinot.local:8443
 ```
+
+# Find expring certificates within 30 days
+
+The directory [cert-reporter](./cert-reporter/) has a [cert-reporter.py](./cert-reporter/cert-reporter.py) which finds TLS certificates in Kubernetes Secrets, parse their expiration dates and print if they are expiring within 30 days.
+There is a [Dockerfile](./cert-reporter/Dockerfile) in it which 
+## Build the docker image for minikube
+```
+$ eval $(minikube docker-env)
+$ docker build -t cert-reporter cert-reporter                                    
+...
+Successfully tagged cert-reporter:latest
+```
+
+## RBAC and cronjob
+[cert-reporter.yaml](./cert-reporter.yaml) create a ClusterRole which allows to read Kubernetes Secrets, bind it to the default service account with `pinot-quickstart` namespace, and create a Cronjob to run above docker image everyday
+```
+$ % kubectl apply -f cert-reporter.yaml                                                 
+clusterrole.rbac.authorization.k8s.io/secret-reader created
+clusterrolebinding.rbac.authorization.k8s.io/secret-reader created
+cronjob.batch/cert-reporter created
+```
+It can be manually triggered
+```
+ % kubectl create job --from=cronjob/cert-reporter cert-reporter-001 
+job.batch/cert-reporter-001 created
+```
+Example outputs
+```
+$ kubectl logs job.batch/cert-reporter-001
+Listing secrets:
+pinot-broker-tls will expire within 30 days at 2022-03-21 23:11:49
+pinot-controller-tls will expire within 30 days at 2022-03-21 23:11:49
+```
